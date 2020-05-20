@@ -1,0 +1,96 @@
+{
+  "name": "pbts-grpc-transcoder",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "https://wisetime.com",
+  "dependencies": {
+    "@types/jwt-decode": "^2.2.1",
+    "@types/node": "^12.12.29",
+    "@types/ramda": "^0.26.44",
+    "fp-ts": "^2.5.3",
+    "immer": "^6.0.5",
+    "protobufjs": "~6.9.0",
+    "ramda": "^0.27.0",
+    "retry-ts": "^0.1.2",
+    "ts-node": "^8.10.1",
+    "typescript": "^3.8.3",
+    "whatwg-fetch": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/faker": "^4.1.11",
+    "@types/jest": "^24.9.1",
+    "babel-core": "^7.0.0-bridge.0",
+    "es6-promise": "^4.2.8",
+    "factory.ts": "^0.5.1",
+    "faker": "^4.1.0",
+    "jest": "^26.0.1",
+    "rxjs-marbles": "^6.0.0",
+    "ts-jest": "^26.0.0"
+  },
+  "scripts": {
+    "pretest": "cd src/http-transcoder/tests; make protobuf",
+    "test": "jest --no-cache"
+  },
+  "eslintConfig": {
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+      "plugin:react/recommended",
+      "plugin:@typescript-eslint/recommended"
+    ],
+    "rules": {
+      "indent": [
+        "error",
+        2,
+        {
+          "SwitchCase": 1,
+          "FunctionDeclaration": {
+            "parameters": "first"
+          }
+        }
+      ],
+      "semi": [
+        "error",
+        "never"
+      ],
+      "quotes": [
+        "error",
+        "double"
+      ],
+      "prefer-destructuring": 1,
+      "react/display-name": 0,
+      "@typescript-eslint/member-delimiter-style": [
+        "error",
+        {
+          "multiline": {
+            "delimiter": "comma",
+            "requireLast": true
+          },
+          "singleline": {
+            "delimiter": "comma",
+            "requireLast": false
+          }
+        }
+      ],
+      "object-curly-spacing": [
+        "error",
+        "always",
+        {
+          "arraysInObjects": false,
+          "objectsInObjects": false
+        }
+      ]
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ]
+  }
+}
