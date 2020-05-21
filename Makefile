@@ -5,4 +5,4 @@ clean:
 	rm -rf node_modules/
 
 init:
-	npm install
+	npm ci
