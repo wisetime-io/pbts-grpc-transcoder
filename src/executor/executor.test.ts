@@ -5,6 +5,7 @@ import createHttpExecutor, { emptyRequestConfig, Fetch } from "./executor"
 import { ConvertibleToJson } from "../http-transcoder"
 import { ErrorResponse } from "./ErrorResponse"
 import { responseNotOk, never, RetryPolicy } from "./retry"
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { Response } = require("whatwg-fetch")
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const descriptor = require("../http-transcoder/tests/generated/test-protobuf-descriptor.json")

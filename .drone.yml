@@ -1,0 +1,51 @@
+---
+kind: pipeline
+name: unit-test
+
+steps:
+
+  - name: app-init
+    image: registry.dev.wisetime.com/check-frontend
+    commands:
+      - make clean
+      - make init
+
+  - name: lint
+    image: registry.dev.wisetime.com/check-frontend
+    commands:
+      - npm run eslint
+
+  - name: test
+    image: registry.dev.wisetime.com/check-frontend
+    commands:
+      - npm test
+
+trigger:
+  event:
+    - push
+
+---
+kind: secret
+name: git-ssh-key-b64
+get:
+  path: drone/stash/submodule-rsa
+  name: submod-key-b64
+
+
+---
+kind: secret
+name: bamboo-user
+get:
+  path: drone/bamboo/trigger
+  name: bamboo-user
+
+---
+kind: secret
+name: bamboo-pass
+get:
+  path: drone/bamboo/trigger
+  name: bamboo-pass
+
+# example local builds:
+#  - drone exec --trusted --include test --branch feature/WT-7371-configuration-as-code
+#  - drone exec --trusted --include trigger-bamboo-artifact-master-build --secret-file secrets.env --branch master
