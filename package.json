@@ -3,33 +3,40 @@
   "version": "0.1.0",
   "private": true,
   "homepage": "https://wisetime.com",
+  "main": "src/executor/index.ts",
   "dependencies": {
     "@types/jwt-decode": "^2.2.1",
     "@types/node": "^12.12.29",
     "@types/ramda": "^0.26.44",
     "fp-ts": "^2.5.3",
     "immer": "^6.0.5",
+    "node-fetch": "^2.6.0",
     "protobufjs": "~6.9.0",
     "ramda": "^0.27.0",
     "retry-ts": "^0.1.2",
     "ts-node": "^8.10.1",
-    "typescript": "^3.8.3",
-    "whatwg-fetch": "^3.0.0"
+    "typescript": "^3.9.3"
   },
   "devDependencies": {
     "@types/faker": "^4.1.11",
     "@types/jest": "^24.9.1",
+    "@typescript-eslint/eslint-plugin": "^2.34.0",
+    "@typescript-eslint/parser": "^2.34.0",
     "babel-core": "^7.0.0-bridge.0",
     "es6-promise": "^4.2.8",
+    "eslint": "^6.8.0",
+    "eslint-plugin-react": "^7.20.0",
     "factory.ts": "^0.5.1",
     "faker": "^4.1.0",
-    "jest": "^26.0.1",
+    "jest": "24.9.0",
     "rxjs-marbles": "^6.0.0",
     "ts-jest": "^26.0.0"
   },
   "scripts": {
     "pretest": "cd src/http-transcoder/tests; make protobuf",
-    "test": "jest --no-cache"
+    "test": "jest --no-cache",
+    "build": "tsc",
+    "eslint": "eslint  --quiet src/executor/* src/http-transcoder/*.ts"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",
