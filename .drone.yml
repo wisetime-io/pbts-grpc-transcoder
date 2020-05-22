@@ -19,7 +19,35 @@ steps:
     image: node:10.20
     commands:
       - npm test
+      -
+  - name: trigger-bamboo-artifact-master-build
+    image: registry.dev.wisetime.com/alpine-git-bash
+    environment:
+      BAMBOO_USER:
+        from_secret: bamboo-user
+      BAMBOO_PASS:
+        from_secret: bamboo-pass
+    commands:
+      - curl --silent --show-error --fail -u $${BAMBOO_USER}:$${BAMBOO_PASS} -X POST -d "ARTIFACT&ExecuteAllStages" https://bamboo.dev.wisetime.com/rest/api/latest/queue/WT-PBTSGRPC
+    when:
+      branch:
+        include:
+          - master
 
 trigger:
   event:
     - push
+
+---
+kind: secret
+name: bamboo-user
+get:
+  path: drone/bamboo/trigger
+  name: bamboo-user
+
+---
+kind: secret
+name: bamboo-pass
+get:
+  path: drone/bamboo/trigger
+  name: bamboo-pass
