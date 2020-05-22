@@ -5,18 +5,18 @@ name: unit-test
 steps:
 
   - name: app-init
-    image: registry.dev.wisetime.com/check-frontend
+    image: node:10.20
     commands:
       - make clean
       - make init
 
   - name: lint
-    image: registry.dev.wisetime.com/check-frontend
+    image: node:10.20
     commands:
       - npm run eslint
 
   - name: test
-    image: registry.dev.wisetime.com/check-frontend
+    image: node:10.20
     commands:
       - npm test
 
