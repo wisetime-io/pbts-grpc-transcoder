@@ -28,7 +28,7 @@
     "eslint-plugin-react": "^7.20.0",
     "factory.ts": "^0.5.1",
     "faker": "^4.1.0",
-    "jest": "^26.0.1",
+    "jest": "24.9.0",
     "rxjs-marbles": "^6.0.0",
     "ts-jest": "^26.0.0"
   },
