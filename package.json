@@ -1,9 +1,13 @@
 {
-  "name": "pbts-grpc-transcoder",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@wisetime-io/pbts-grpc-transcoder",
+  "version": "0.1.1",
   "homepage": "https://wisetime.com",
   "main": "src/executor/index.ts",
+  "publishConfig": {
+    "registry":"https://npm.pkg.github.com/"
+  },
+  "repository": "git@github.com:wisetime-io/pbts-grpc-transcoder.git",
+  "files": ["dist"],
   "dependencies": {
     "@types/jwt-decode": "^2.2.1",
     "@types/node": "^12.12.29",
@@ -35,7 +39,7 @@
   "scripts": {
     "pretest": "cd src/http-transcoder/tests; make protobuf",
     "test": "jest --no-cache",
-    "build": "tsc",
+    "build": "tsc --module commonjs",
     "eslint": "eslint  --quiet src/executor/* src/http-transcoder/*.ts"
   },
   "eslintConfig": {
