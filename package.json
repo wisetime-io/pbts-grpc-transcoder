@@ -1,12 +1,8 @@
 {
-  "name": "@wisetime-io/pbts-grpc-transcoder",
-  "version": "0.1.1",
+  "name": "@wisetime/pbts-grpc-transcoder",
+  "version": "0.1.0",
   "homepage": "https://wisetime.com",
   "main": "src/executor/index.ts",
-  "publishConfig": {
-    "registry":"https://npm.pkg.github.com/"
-  },
-  "repository": "git@github.com:wisetime-io/pbts-grpc-transcoder.git",
   "files": ["dist"],
   "dependencies": {
     "@types/jwt-decode": "^2.2.1",
