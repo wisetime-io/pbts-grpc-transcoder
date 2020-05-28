@@ -142,7 +142,7 @@ const createHttpExecutor = (
     }
   }, E.toError)
 
-  const transcoded = pipe(
+  const transcodeRequest = () => pipe(
     initialContext,
     E.chain(transcode(descriptorRoot, service.name, method.name)),
     E.map(getFetchUrl(baseUrl)),
@@ -150,7 +150,7 @@ const createHttpExecutor = (
   )
 
   const fetchTask: TaskEither<Error, Uint8Array> = pipe(
-    TE.fromEither(transcoded),
+    TE.fromEither(transcodeRequest()),
     TE.chain(executeFetch(fetch)),
     TE.chain(validateResponseOk),
     TE.chain(encodeResponse),
