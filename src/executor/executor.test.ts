@@ -98,11 +98,15 @@ test("httpExecutor fetch fails, is retried and succeeds", () => {
     return Promise.resolve(successResponse(Api.Empty.create()))
   }
 
-  let didGiveUp: boolean | undefined = undefined
+  let numWillRetryCalls = 0
+  let didGiveUp = false
   const retryPolicy = responseNotOk(
     _ => true,
     succeedOnAttemptNumber,
-    () => Promise.resolve(),
+    () => {
+      numWillRetryCalls++
+      return Promise.resolve()
+    },
     () => didGiveUp = true
   )
 
@@ -112,18 +116,23 @@ test("httpExecutor fetch fails, is retried and succeeds", () => {
       // Number of retries has not yet been exceeded when the call succeeds.
       expect(numAttempts).toEqual(succeedOnAttemptNumber)
       expect(response).toEqual(Api.Empty.create())
-      expect(didGiveUp).toEqual(undefined)
+      expect(numWillRetryCalls).toEqual(succeedOnAttemptNumber - 1)
+      expect(didGiveUp).toEqual(false)
     })
 })
 
 test("httpExecutor fetch fails, is retried until executor gives up", () => {
   const fetchError = new ErrorResponse(new Response())
 
+  let willRetryCalled = false
   let didGiveUp = false
   const retryPolicy = responseNotOk(
     _ => true,
     2,
-    () => Promise.resolve(),
+    () => {
+      willRetryCalled = true
+      return Promise.resolve()
+    },
     () => didGiveUp = true
   )
 
@@ -131,6 +140,7 @@ test("httpExecutor fetch fails, is retried until executor gives up", () => {
     .testPathVariable(Api.SimpleFieldMessage.create())
     .catch(error => {
       expect(error).toEqual(fetchError)
+      expect(willRetryCalled).toEqual(true)
       expect(didGiveUp).toEqual(true)
     })
 })
@@ -144,11 +154,15 @@ test("httpExecutor fetch fails, should not be retried and is not", () => {
     return Promise.reject(error)
   }
 
+  let willRetryCalled = false
   let didGiveUp = false
   const retryPolicy = responseNotOk(
     _ => false,
     2,
-    () => Promise.resolve(),
+    () => {
+      willRetryCalled = true
+      return Promise.resolve()
+    },
     () => didGiveUp = true
   )
 
@@ -158,7 +172,52 @@ test("httpExecutor fetch fails, should not be retried and is not", () => {
       expect(error).toEqual(fetchError)
       // Only one attempt. No retry.
       expect(numAttempts).toEqual(1)
+      // No retry.
+      expect(willRetryCalled).toEqual(false)
       // Did not retry, therefore didn't give up.
+      expect(didGiveUp).toEqual(false)
+    })
+})
+
+test("httpExecutor willRetry failure does not prevent further retries", () => {
+  const fetchError = new ErrorResponse(new Response())
+
+  let numAttempts = 0
+  // Fails 2 times, then succeeds.
+  const mockRetriedFetch = () => (_url: RequestInfo, _init?: RequestInit): Promise<Response> => {
+    numAttempts++
+    if (numAttempts <= 2) {
+      return Promise.reject(new ErrorResponse(new Response()))
+    }
+    return Promise.resolve(successResponse(Api.Empty.create()))
+  }
+
+  let numWillRetryCalls = 0
+  // Fails 1 time, then succeeds.
+  const willRetry = () => {
+    numWillRetryCalls++
+    if (numWillRetryCalls == 1) {
+      return Promise.reject(fetchError)
+    }
+    return Promise.reject()
+  }
+
+  let didGiveUp = false
+  const retryPolicy = responseNotOk(
+    _ => true,
+    2,
+    willRetry,
+    () => didGiveUp = true
+  )
+
+  return createTestService(mockRetriedFetch(), retryPolicy)
+    .testPathVariable(Api.SimpleFieldMessage.create())
+    .then(_ => {
+      // 1. Fetch fails, willRetry fails.
+      // 2. Fetch fails, willRetry succeeds.
+      // 3. Fetch succeeds.
+      expect(numAttempts).toEqual(3)
+      expect(numWillRetryCalls).toEqual(2)
       expect(didGiveUp).toEqual(false)
     })
 })
