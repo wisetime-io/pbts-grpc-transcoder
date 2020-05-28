@@ -149,7 +149,7 @@ const createHttpExecutor = (
     E.map(getFetchRequest(configureRequest)),
   )
 
-  const fetchTask: TaskEither<Error, Uint8Array> = pipe(
+  const performRequest: () => TaskEither<Error, Uint8Array> = () => pipe(
     TE.fromEither(transcodeRequest()),
     TE.chain(executeFetch(fetch)),
     TE.chain(validateResponseOk),
@@ -158,13 +158,13 @@ const createHttpExecutor = (
 
   const fetchWithRetry = retrying(
     capDelay(retryPolicy.maxDelay, monoidRetryPolicy.concat(
-      exponentialBackoff(200),
+      exponentialBackoff(250),
       limitRetries(retryPolicy.maxRetries),
     )),
     status => pipe(
       logRetry(service.name, method.name, status),
       beforeRetry(status, retryPolicy.willRetry),
-      () => fetchTask,
+      performRequest,
     ),
     shouldRetry(retryPolicy),
   )
