@@ -68,7 +68,7 @@ const validateResponseOk = (context: ExecutionContext): TaskEither<Error, Execut
 const encodeResponse = (context: ExecutionContext): TaskEither<Error, Uint8Array> =>
   pipe(
     TE.tryCatch(() => context.fetchResponse!.json(), E.toError),
-    TE.map(json => context.responseType.fromObject(json)),
+    TE.map(json => context.responseType.create(json)),
     TE.map(message => context.responseType.encode(message).finish()),
   )
 
@@ -142,15 +142,15 @@ const createHttpExecutor = (
     }
   }, E.toError)
 
-  const transcoded = pipe(
+  const transcodeRequest = () => pipe(
     initialContext,
     E.chain(transcode(descriptorRoot, service.name, method.name)),
     E.map(getFetchUrl(baseUrl)),
     E.map(getFetchRequest(configureRequest)),
   )
 
-  const fetchTask: TaskEither<Error, Uint8Array> = pipe(
-    TE.fromEither(transcoded),
+  const performRequest: () => TaskEither<Error, Uint8Array> = () => pipe(
+    TE.fromEither(transcodeRequest()),
     TE.chain(executeFetch(fetch)),
     TE.chain(validateResponseOk),
     TE.chain(encodeResponse),
@@ -158,13 +158,13 @@ const createHttpExecutor = (
 
   const fetchWithRetry = retrying(
     capDelay(retryPolicy.maxDelay, monoidRetryPolicy.concat(
-      exponentialBackoff(200),
+      exponentialBackoff(250),
       limitRetries(retryPolicy.maxRetries),
     )),
     status => pipe(
       logRetry(service.name, method.name, status),
       beforeRetry(status, retryPolicy.willRetry),
-      () => fetchTask,
+      performRequest,
     ),
     shouldRetry(retryPolicy),
   )
