@@ -37,7 +37,7 @@ steps:
 kind: pipeline
 name: mirror-to-github
 depends_on:
-  - test
+  - unit-test
 
 steps:
   - name: github-push
