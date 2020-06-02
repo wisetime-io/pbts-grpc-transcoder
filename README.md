@@ -2,6 +2,12 @@
 
 pbts-grpc-transcoder is a [TypeScript](https://www.typescriptlang.org) library that provides [gRPC](https://grpc.io) to HTTP/1 & JSON transcoding for the [protobuf.js library](https://github.com/protobufjs/protobuf.js).
 
+The library is published via [npm](https://www.npmjs.com/package/@wisetime/pbts-grpc-transcoder). Get it via:
+
+```text
+npm i @wisetime/pbts-grpc-transcoder
+```
+
 ## Transcoding
 
 gRPC uses HTTP/2 as its transfer protocol and typically sends messages as binary payloads. However, when we define a gRPC service, we can optionally specify [HTTP Options](https://github.com/googleapis/googleapis/blob/master/google/api/http.proto) for the RPCs, so that REST clients can interact with our service using HTTP/1 and JSON.
@@ -75,7 +81,7 @@ DELETE /v1/todos/123
 
 ## Reverse Transcoding
 
-That's great. We can now communicate with a gRPC service through plain HTTP/1 and JSON. However, we have lost our strongly typed calls and messages and are now dealing with ad hoc HTTP requests and hand-crafted JSON.
+That's great, we can now communicate with a gRPC service through plain HTTP/1 and JSON. However, we have lost our strongly typed calls and messages and are now dealing with ad hoc HTTP requests and hand-crafted JSON.
 
 What if we could still make fully-typed RPC calls to the server while still going over HTTP/1 with JSON payloads? We would like to use [protobuf.js with TypeScript](https://github.com/protobufjs/protobuf.js#pbts-for-typescript) to call our service like this:
 
