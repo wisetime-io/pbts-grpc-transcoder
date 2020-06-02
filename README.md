@@ -190,3 +190,7 @@ todoService
     // ...
   })
 ```
+
+## Limitations
+
+This library implements HTTP Options transcoding. It only supports unary RPCs.
