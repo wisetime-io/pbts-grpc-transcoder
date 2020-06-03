@@ -34,6 +34,7 @@ service TodoService {
 
 message CreateTodoRequest {
   string title = 1;
+  bool completed = 2;
 }
 
 message Todo {
@@ -69,7 +70,8 @@ We can then create a new Todo item by making a `POST` HTTP request to `/v1/todos
 
 ```json
 {
-  "title": "Book flight to Mauritius"
+  "title": "Book flight to Mauritius",
+  "completed": false
 }
 ```
 
@@ -88,7 +90,8 @@ What if we could still make fully-typed RPC calls to the server while still goin
 ```typescript
 todoService
   .createTodo(CreateTodoRequest.create({
-    title: "Book flight to Mauritius"  // Type-checked by TypeScript.
+    title: "This request is type-checked",
+    completed: true,
   }))
   .then(response => {
     console.log(`id: ${response.id}`)
