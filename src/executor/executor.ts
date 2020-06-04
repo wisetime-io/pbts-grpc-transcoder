@@ -68,7 +68,7 @@ const validateResponseOk = (context: ExecutionContext): TaskEither<Error, Execut
 const encodeResponse = (context: ExecutionContext): TaskEither<Error, Uint8Array> =>
   pipe(
     TE.tryCatch(() => context.fetchResponse!.json(), E.toError),
-    TE.map(json => context.responseType.create(json)),
+    TE.map(json => context.responseType.fromObject(json)),
     TE.map(message => context.responseType.encode(message).finish()),
   )
 
