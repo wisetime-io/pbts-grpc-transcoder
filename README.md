@@ -2,10 +2,10 @@
 
 pbts-grpc-transcoder is a [TypeScript](https://www.typescriptlang.org) library that provides [gRPC](https://grpc.io) to HTTP/1 & JSON transcoding for the [protobuf.js library](https://github.com/protobufjs/protobuf.js).
 
-The library is published via [npm](https://www.npmjs.com/package/@wisetime/pbts-grpc-transcoder). Get it via:
+The library is published via [npm](https://www.npmjs.com/package/pbts-grpc-transcoder). Get it via:
 
 ```text
-npm i @wisetime/pbts-grpc-transcoder
+npm i pbts-grpc-transcoder
 ```
 
 ## Transcoding
@@ -104,7 +104,7 @@ This is what pbts-grpc-transcoder allows us to do. We call our service as if we 
 Install pbts-grpc-transcoder via npm:
 
 ```text
-npm i @wisetime/pbts-grpc-transcoder
+npm i pbts-grpc-transcoder
 ```
 
 protobuf.js will be installed as a dependency and the pbjs and pbts utilities will be available in your `node_modules/.bin` directory.
