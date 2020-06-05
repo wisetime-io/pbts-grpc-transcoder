@@ -100,12 +100,10 @@ const beforeRetry = (status: RetryStatus, willRetry: () => Promise<void>): TaskE
     ? TE.tryCatch(willRetry, reason => new Error(String(reason)))
     : TE.right(undefined)
 
-const didGiveUp = (error: Error, retryPolicy: RetryPolicy): boolean => {
-  if (error instanceof ErrorResponse) {
-    return retryPolicy.shouldRetry(error.response)
-  }
-  return false
-}
+const didGiveUp = (error: Error, retryPolicy: RetryPolicy): boolean =>
+  error instanceof ErrorResponse
+    ? retryPolicy.shouldRetry(error.response)
+    : false
 
 /**
  * Create a gRPC executor that performs RPC calls via HTTP/1 with JSON payloads.
