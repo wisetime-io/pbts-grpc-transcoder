@@ -87,7 +87,7 @@ test("httpExecutor fetch fails because HTTP response status code is not 200", ()
 })
 
 test("httpExecutor fetch fails, is retried and succeeds", () => {
-  const succeedOnAttemptNumber = 3
+  const succeedOnAttemptNumber = 2
 
   let numAttempts = 0
   const mockRetriedFetch = () => (_url: RequestInfo, _init?: RequestInit): Promise<Response> => {
