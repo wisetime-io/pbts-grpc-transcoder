@@ -1,6 +1,6 @@
 {
   "name": "pbts-grpc-transcoder",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "homepage": "https://wisetime.com",
   "main": "src/executor/index.ts",
   "files": [
