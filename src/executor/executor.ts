@@ -76,12 +76,11 @@ const shouldRetry = (retryPolicy: RetryPolicy) => <T>(result: Either<Error, T>):
   pipe(
     result,
     E.map(_ => false),
-    getOrElse(error => {
-      if (error instanceof ErrorResponse) {
-        return retryPolicy.shouldRetry(error.response)
-      }
-      return false
-    }),
+    getOrElse(error =>
+      error instanceof ErrorResponse
+        ? retryPolicy.shouldRetry(error.response)
+        : false
+    ),
   )
 
 const logRetry = (serviceName: string, methodName: string, status: RetryStatus) => TE.rightIO(
@@ -161,8 +160,8 @@ const createHttpExecutor = (
     )),
     status => pipe(
       logRetry(service.name, method.name, status),
-      beforeRetry(status, retryPolicy.willRetry),
-      performRequest,
+      TE.chain(_ => beforeRetry(status, retryPolicy.willRetry)),
+      TE.chain(_ => performRequest()),
     ),
     shouldRetry(retryPolicy),
   )

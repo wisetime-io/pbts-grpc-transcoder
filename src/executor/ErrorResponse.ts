@@ -13,4 +13,3 @@ export class ErrorResponse extends Error {
     this.response = response
   }
 }
-
