@@ -196,4 +196,5 @@ todoService
 
 ## Limitations
 
-This library implements HTTP Options transcoding. It only supports unary RPCs.
+* This library implements HTTP Options transcoding. It only supports unary RPCs.
+* Please ensure that the JavaScript files that are generated from Protobuf aren't minified.
