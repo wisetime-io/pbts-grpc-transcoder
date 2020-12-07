@@ -3,6 +3,11 @@
 // This is the API for the grpc/http-transcoder module.
 // The module provides gRPC to HTTP/1 and JSON transcoding.
 
+import { enableAllPlugins } from "immer"
+
+// Required for IE11 support https://immerjs.github.io/immer/docs/installation#pick-your-immer-version
+enableAllPlugins()
+
 export type HttpRequest = {
   urlEncodedPath: string,
   urlEncodedQueryString: string | undefined,
