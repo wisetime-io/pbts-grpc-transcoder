@@ -1,0 +1,80 @@
+---
+kind: pipeline
+name: unit-test
+
+steps:
+
+  - name: app-init
+    image: registry.dev.wisetime.com/check-frontend
+    commands:
+      - make clean
+      - make init
+
+  - name: lint
+    image: registry.dev.wisetime.com/check-frontend
+    commands:
+      - npm run eslint
+
+  - name: test
+    image: registry.dev.wisetime.com/check-frontend
+    commands:
+      - npm test
+      -
+  - name: trigger-bamboo-artifact-master-build
+    image: curlimages/curl:7.72.0
+    environment:
+      BAMBOO_USER:
+        from_secret: bamboo-user
+      BAMBOO_PASS:
+        from_secret: bamboo-pass
+    commands:
+      - curl --silent --show-error --fail -u $${BAMBOO_USER}:$${BAMBOO_PASS} -X POST -d "ARTIFACT&ExecuteAllStages" https://bamboo.dev.wisetime.com/rest/api/latest/queue/WT-PBTSGRPC
+    when:
+      branch:
+        - master
+      event:
+        - push
+---
+kind: pipeline
+name: mirror-to-github
+depends_on:
+  - unit-test
+
+steps:
+  - name: github-push
+    image: registry.dev.wisetime.com/git
+    environment:
+      GITHUB_SSH_KEY_B64:
+        from_secret: github-ssh-key-b64
+    commands:
+      - ./mirror.sh
+    when:
+      ref:
+        - refs/heads/master
+        - refs/tags/*
+
+trigger:
+  event:
+    - push
+    - tag
+
+---
+kind: secret
+name: bamboo-user
+get:
+  path: drone/bamboo/trigger
+  name: bamboo-user
+
+---
+kind: secret
+name: bamboo-pass
+get:
+  path: drone/bamboo/trigger
+  name: bamboo-pass
+
+---
+kind: secret
+name: github-ssh-key-b64
+get:
+  path: drone/publish/github/pbts-grpc-transcoder
+  name: gh-pbts-grpc-transcoder-key-b64
