@@ -1,0 +1,4 @@
+src/http-transcoder/generated/*
+src/http-transcoder/protobuf/*
+src/http-transcoder/tests/generated/*
+
