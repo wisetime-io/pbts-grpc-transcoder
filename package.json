@@ -1,0 +1,109 @@
+{
+  "name": "pbts-grpc-transcoder",
+  "version": "0.2.7",
+  "homepage": "https://wisetime.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wisetime-io/pbts-grpc-transcoder.git"
+  },
+  "main": "executor/index.js",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@types/node": "^16.13.1",
+    "@types/ramda": "^0.28.7",
+    "fp-ts": "^2.11.9",
+    "immer": "^9.0.12",
+    "node-fetch": "^2.6.7",
+    "protobufjs": "^6.11.3",
+    "ramda": "^0.28.0",
+    "retry-ts": "^0.1.3",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.3"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^6.1.2",
+    "@types/jest": "^27.4.1",
+    "@typescript-eslint/eslint-plugin": "^5.27.0",
+    "@typescript-eslint/parser": "^5.27.0",
+    "babel-core": "^7.0.0-bridge.0",
+    "es6-promise": "^4.2.8",
+    "eslint": "^7.32.0",
+    "factory.ts": "^1.1.0",
+    "jest": "27.5.1",
+    "rxjs-marbles": "^7.0.1",
+    "ts-jest": "^27.1.4"
+  },
+  "files": [
+    "executor/",
+    "http-transcoder/",
+    "package.json",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "pretest": "cd src/http-transcoder/tests; make protobuf",
+    "test": "jest --no-cache",
+    "build": "tsc --module commonjs",
+    "eslint": "eslint  --quiet src/executor/* src/http-transcoder/*.ts"
+  },
+  "eslintConfig": {
+    "parser": "@typescript-eslint/parser",
+    "extends": [
+      "plugin:@typescript-eslint/recommended"
+    ],
+    "rules": {
+      "indent": [
+        "error",
+        2,
+        {
+          "SwitchCase": 1,
+          "FunctionDeclaration": {
+            "parameters": "first"
+          }
+        }
+      ],
+      "semi": [
+        "error",
+        "never"
+      ],
+      "quotes": [
+        "error",
+        "double"
+      ],
+      "prefer-destructuring": 1,
+      "@typescript-eslint/member-delimiter-style": [
+        "error",
+        {
+          "multiline": {
+            "delimiter": "comma",
+            "requireLast": true
+          },
+          "singleline": {
+            "delimiter": "comma",
+            "requireLast": false
+          }
+        }
+      ],
+      "object-curly-spacing": [
+        "error",
+        "always",
+        {
+          "arraysInObjects": false,
+          "objectsInObjects": false
+        }
+      ]
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ]
+  }
+}
