@@ -1,0 +1,9 @@
+// Copyright (c) 2021 WiseTime. All rights reserved.
+
+syntax = "proto3";
+package duplicated_message_name;
+import "google/api/annotations.proto";
+
+// An empty duplicated ABitOfEverythingMessage name from HttpTranscoder.test.proto
+// Used for testing correct resolve of ABitOfEverythingMessage from service instead of root descriptor
+message ABitOfEverythingMessage {}
