@@ -1,0 +1,281 @@
+// Copyright (c) 2020 WiseTime. All rights reserved.
+
+syntax = "proto3";
+package tests;
+import "google/api/annotations.proto";
+
+// Protocol Buffers definition for testing gRPC to HTTP/JSON transcoding.
+// Given an RPC call, we want to verify that the transcoder will correctly
+// generate the following for the request:
+//
+//  - URL path
+//  - Request query parameters if any
+//  - HTTP method GET | PUT | POST | DELETE | PATCH (Custom method is not supported)
+//  - Request body if any
+//
+// The transcoder follows the spec outlined in
+// https://github.com/googleapis/googleapis/blob/master/google/api/http.proto
+//
+service HttpTranscoderTestService {
+
+  // The transcoder should simply pick the main binding and ignore additional bindings.
+  //
+  // SimpleFieldMessage(field: "123")
+  // -> GET /v1/123/bar
+  //
+  rpc TestMultipleBindings (SimpleFieldMessage) returns (Empty) {
+    option (google.api.http) = {
+      additional_bindings {
+        post: "/v1/bar"
+      }
+      get: "/v1/{field}/bar"
+    };
+  }
+
+  // Each mapping specifies a URL path template and an HTTP method. The path
+  // template may refer to one or more fields in the gRPC request message, as long
+  // as each field is a non-repeated field with a primitive (non-message) type.
+  // The path template controls how fields of the request message are mapped to
+  // the URL path.
+  //
+  // When a variable is expanded into a URL path, all characters except
+  // `[-_.~0-9a-zA-Z]` are percent-encoded.
+  //
+  // SimpleFieldMessage(field: "123")
+  // -> GET /v1/123/bar
+  //
+  rpc TestPathVariable (SimpleFieldMessage) returns (Empty) {
+    option (google.api.http) = {
+      get: "/v1/{field}/bar"
+    };
+  }
+
+  // The syntax `*` matches a single URL path segment.
+  //
+  // SimpleFieldMessage(field: "foo/123/bar")
+  // -> GET /v1/foo/123/bar/baz
+  //
+  rpc TestPathVariableWithStar (SimpleFieldMessage) returns (Empty) {
+    option (google.api.http) = {
+      get: "/v1/{field=foo/*/bar}/baz"
+    };
+  }
+
+  // The variable {field=*} is equivalent to {field}
+  //
+  // SimpleFieldMessage(field: "123")
+  // -> DELETE /v1/123/bar
+  //
+  rpc TestPathVariableStarEquivalent (SimpleFieldMessage) returns (Empty) {
+    option (google.api.http) = {
+      delete: "/v1/{field=*}/bar"
+    };
+  }
+
+  // The syntax `**` matches zero or more URL path segments, which must be the last
+  // part of the URL path except the `Verb`.
+  //
+  // SimpleFieldMessage(field: "foo/bar/baz/123")
+  // -> GET /v1/foo/bar/baz/123:verb
+  //
+  rpc TestPathVariableWithDoubleStar (SimpleFieldMessage) returns (Empty) {
+    option (google.api.http) = {
+      get: "/v1/{field=foo/**}:verb"
+    };
+  }
+
+  // Any fields in the request message which are not bound by the path template
+  // automatically become HTTP query parameters if there is no HTTP request body.
+  // The parameter name is the field path in the request message.
+  //
+  // FlatMessage(field_one: "123", field_two: "abc", field_three: "def")
+  // -> GET /v1/123/bar?fieldTwo=abc&fieldThree=def
+  //
+  rpc TestGetQueryParameters (FlatMessage) returns (Empty) {
+    option (google.api.http) = {
+      get: "/v1/{field_one}/bar"
+    };
+  }
+
+  // Unbound fields should also become query parameters for non-GET requests as
+  // as long as there is no HTTP request body.
+  //
+  // FlatMessage(field_one: "123", field_two: "abc", field_three: "def")
+  // -> POST /v1/123/bar?fieldTwo=abc&fieldThree=def
+  //
+  rpc TestPostQueryParameters (FlatMessage) returns (Empty) {
+    option (google.api.http) = {
+      post: "/v1/{field_one}/bar"
+    };
+  }
+
+  // Field bound to the body should be sent as JSON in the request body.
+  // The referred field must be present at the top-level of the request.
+  //
+  // FlatMessage(field_one: "foo", field_two: "abc", field_three: "def")
+  // -> PATCH /v1/bar?fieldTwo=abc&fieldThree=def
+  //    {
+  //      "field": "foo"
+  //    }
+  //
+  rpc TestBodyFieldMapping (FlatMessage) returns (Empty) {
+    option (google.api.http) = {
+      patch: "/v1/bar"
+      body: "field_one"
+    };
+  }
+
+  // Use `*` in the body mapping to map all request fields not captured by the path to
+  // fields in the JSON payload.
+  //
+  // FlatMessage(field_one: "123", field_two: "abc", field_three: "def")
+  // -> POST /v1/bar/123
+  // {
+  //    "fieldTwo": "abc",
+  //    "fieldThree": "def"
+  // }
+  //
+  rpc TestBodyStarMapping (FlatMessage) returns (Empty) {
+    option (google.api.http) = {
+      post: "/v1/bar/{field_one}"
+      body: "*"
+    };
+  }
+
+  // A repeated field can be represented as multiple query parameters under the same name.
+  //
+  // RepeatedFieldMessage(multi: ["foo", "bar", "baz"])
+  // -> PUT /v1/foo?multi=foo&multi=bar&multi=baz
+  //
+  rpc TestRepeatedQueryParameters (RepeatedFieldMessage) returns (Empty) {
+    option (google.api.http) = {
+      put: "/v1/foo"
+    };
+  }
+
+  // Nested fields in path variables are represented by their field paths. Inner fields are
+  // separated by a `.` in the field path.
+  //
+  // NestedFieldMessage(nested: Nested(inner: Leaf(value: "bar")))
+  // -> GET "/v1/foo/bar"
+  //
+  rpc TestNestedPathVariable (NestedFieldMessage) returns (Empty) {
+    option (google.api.http) = {
+      get: "/v1/foo/{nested.inner.value}"
+    };
+  }
+
+  // Unbound nested fields for GET requests are represented as query parameters with the
+  // parameter names made up of the field paths to each leaf field. Inner fields are separated
+  // by a `.` in the field path.
+  //
+  // NestedFieldMessage(nested: Nested(inner: Leaf(value: "bar")))
+  // -> GET "/v1/foo?nested.inner.value=bar"
+  //
+  rpc TestNestedFieldQueryParameters (NestedFieldMessage) returns (Empty) {
+    option (google.api.http) = {
+      get: "/v1/foo"
+    };
+  }
+
+  // Nested fields in request body are represented through sub objects in the JSON payload.
+  //
+  // NestedFieldMessage(nested: Nested(inner: Leaf(value: "bar")))
+  // -> POST "/v1/foo"
+  //    {
+  //       "nested": {
+  //         "inner": {
+  //           "value": "bar"
+  //         }
+  //       }
+  //    }
+  //
+  rpc TestNestedFieldBody (NestedFieldMessage) returns (Empty) {
+    option (google.api.http) = {
+      post: "/v1/foo"
+      body: "*"
+    };
+  }
+
+  // A bit of everything for a GET request.
+  //
+  // ABitOfEverythingMessage(
+  //   field_one: "one",
+  //   field_two: "two",
+  //   nested: Nested(
+  //     inner: Leaf(value: "lv")
+  //   ),
+  //   nested_repeating: RepeatedFieldMessage(
+  //     multi: ["m1", "m2"]
+  //   )
+  // )
+  // -> GET "/v1/one/foo?fieldTwo=two&nested.inner.value=lv&nestedRepeating.multi=m1&nestedRepeating.multi=m2"
+  //
+  rpc TestABitOfEverythingQueryParameters (ABitOfEverythingMessage) returns (Empty) {
+    option (google.api.http) = {
+      get: "/v1/{field_one}/foo"
+    };
+  }
+
+  // A bit of everything for a request with body.
+  //
+  // ABitOfEverythingMessage(
+  //   field_one: "one",
+  //   field_two: "two",
+  //   nested: Nested(
+  //     inner: Leaf(value: "lv")
+  //   ),
+  //   nested_repeated: RepeatedFieldMessage(
+  //     multi: ["m1", "m2"]
+  //   )
+  // )
+  // -> POST "/v1/one/lv"
+  // {
+  //   "fieldTwo": "two",
+  //   "nestedRepeating": {
+  //     "multi": ["m1", "m2"]
+  //   }
+  // }
+  //
+  rpc TestABitOfEverythingBody (ABitOfEverythingMessage) returns (ABitOfEverythingMessage) {
+    option (google.api.http) = {
+      post: "/v1/{field_one}/{nested.inner.value}"
+      body: "*"
+    };
+  }
+}
+
+message SimpleFieldMessage {
+  string field = 1;
+}
+
+message FlatMessage {
+  string field_one = 1;
+  string field_two = 2;
+  string field_three = 3;
+}
+
+message RepeatedFieldMessage {
+  repeated string multi = 1;
+}
+
+message NestedFieldMessage {
+  Nested nested = 1;
+}
+
+message Nested {
+  Leaf inner = 1;
+}
+
+message Leaf {
+  string value = 1;
+}
+
+message ABitOfEverythingMessage {
+  string field_one = 1;
+  string field_two = 2;
+  Nested nested = 3;
+  RepeatedFieldMessage nested_repeating = 4;
+}
+
+message Empty {}
